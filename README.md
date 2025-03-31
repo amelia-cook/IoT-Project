@@ -1,1 +1,3 @@
-# IoT-Project
+# Smart Sticky Note Board
+
+For our final project we are going to create a working smart sticky note board. The board will connect to the Google API to display the user's calendar. On the sticky note board, the user will be able to display various lists on different “sticky notes” and the user will be able to set up reminders for events on their board. We are going to create an interactive website where the user will log into their Google account, create sticky notes, add bullet points to sticky notes, set alarms for events or tasks, and turn the display screen on and off. Once we have all of these components working we want to try and implement the ability for the user to choose the template for the notes on the board through the website.
