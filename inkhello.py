@@ -23,7 +23,7 @@ TEXT_COLOR = WHITE
 
 # SPI and pin setup
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-ecs = digitalio.DigitalInOut(board.CE0)     # Chip select
+ecs = digitalio.DigitalInOut(board.CE1)     # Chip select
 dc = digitalio.DigitalInOut(board.D25)      # Data/command
 rst = digitalio.DigitalInOut(board.D17)     # Reset
 busy = digitalio.DigitalInOut(board.D24)    # Busy
