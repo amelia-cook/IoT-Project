@@ -16,6 +16,11 @@ function ipSubmit() {
 
 function calSubmit() {
     cal = document.getElementById("calID").value;
+    // ipaddr = sessionStorage.getItem("ipaddr");
+    // link = "http://" + ipaddr + ":5000/calID";
+    // alert(link);
+    // apiPOST(link, '{"username":"xyz","password":"xyz"}');
+    apiGET("http://172.30.134.169:5000/getSticky")
     // TODO: send POST request to Pi with new calendar ID
     // link: /addCalendar
     // data: cal
@@ -71,7 +76,8 @@ function apiPOST(link, data) {
         alert("Unable to create HTTPRequest object");
         return;
     }
-    xhr.open("POST", link, true);
+    xhr.open("POST", link);
+    xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onload = function () {
         if (this.status === 200) {
             // Changing string data into JSON Object
