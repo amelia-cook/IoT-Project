@@ -13,8 +13,30 @@ import time
 from PIL import Image,ImageDraw,ImageFont
 import traceback
 from subprocess import check_output
+from datetime import date
 
 logging.basicConfig(level=logging.DEBUG)
+
+def parse(text, size):
+    #parsing through the text, after 35 characters or a new line character it puts the rest of the string in the next element of the array     
+    max_length=45
+    result = []
+    current = ""
+
+    for char in text:
+        current += char
+        if len(current) >= max_length or char == '\n':
+            result.append(current.strip())
+            current = ""
+
+    if current:
+        result.append(current.strip())
+
+    while len(result) < size:
+        result.append(" ")
+            
+    return result
+
 
 try:
     logging.info("epd7in5_V2 Demo")
@@ -32,6 +54,10 @@ try:
     ipAddr = ipAddr.split('\'')[1].split(' ')[0]
     logging.info("ipaddr: " + ipAddr)
 
+    #todays date
+    today = date.today()
+    date_formatted = today.strftime("%A, %B %d")
+    
     # Drawing on the Horizontal image
     logging.info("Drawing on the Horizontal image...")
     epd.init_fast()
@@ -39,12 +65,13 @@ try:
     draw = ImageDraw.Draw(Himage)
     notes_count = 4
 
-    if notes_count == 1:
-        events = ["" for _ in range(16)]
-        for i in range(len(events)):
-            events[i] = f"event {i}"
+    #notes can be 35 characters for 2 panels 
+    #1 panel (calendar) can be 70 characters across 
     
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+    if notes_count == 1:
+        events = [""] * 16
+        
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((709,450), ipAddr , font = font10, fill = 0)
         draw.rectangle((10, 10, 789,469), outline = 0)
         draw.line((20,50, 779,50), fill = 0)
@@ -67,19 +94,11 @@ try:
         draw.text((20,430), events[15], font = font18, fill = 0)
         
     elif notes_count == 3:
-        events = ["" for _ in range(16)]
-        for i in range(len(events)):
-            events[i] = f"event {i}"
-
-        note1_tasks = ["" for _ in range(7)]
-        for k in range(len(note1_tasks)):
-            note1_tasks[k] = f"note 1 task {k}"
-
-        note2_tasks = ["" for _ in range(7)]
-        for j in range(len(note2_tasks)):
-            note2_tasks[j] = f"note 2 task {j}"
-        
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        events = [""] *	16
+        note1_tasks = [""] * 7
+        note2_tasks = [""] * 7
+                        
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((414, 255), 'Get this shtuff done less ASAP', font = font24, fill = 0)
         draw.text((414, 20), 'Get this shtuff done ASAP', font = font24, fill = 0)
         draw.text((320,450), ipAddr , font = font10, fill = 0)
@@ -109,7 +128,7 @@ try:
         draw.text((20,380), events[13], font = font18, fill = 0)
         draw.text((20,405), events[14], font = font18, fill = 0)
         draw.text((20,430), events[15], font = font18, fill = 0)
-
+        
         #note 1 - top right 
         draw.text((414,55), note1_tasks[0], font = font18, fill = 0)
         draw.text((414,80), note1_tasks[1], font = font18, fill = 0)
@@ -129,24 +148,16 @@ try:
         draw.text((414,440), note2_tasks[6], font = font18, fill = 0)
 
     elif notes_count == 4:
-        events = ["" for _ in range(7)]
-        for i in range(len(events)):
-            events[i] = f"event {i}"\
-
-        note1_tasks = ["" for _ in range(7)]
-        for i in range(len(note1_tasks)):
-            note1_tasks[i] = f"note 1 task {i}"
-            
-        note2_tasks = ["" for _ in range(7)]
-        for i in range(len(note2_tasks)):
-            note2_tasks[i] = f"note 2 task {i}"
-
-        note3_tasks = ["" for _ in range(7)]
-        for i in range(len(note3_tasks)):
-            note3_tasks[i] = f"note 3 task {i}"
-            
+        events = [""] * 7
+        note1_tasks = [""] * 7
+        note2_tasks = [""] * 7
+        note3_tasks = [""] * 7
+        
+        text = "- mail letters\n - start final\n - finish project \n - cook dinner \n"
+        note3_tasks = parse(text, 7)
+        
         draw.text((20, 255), 'Random Note', font = font24, fill = 0)
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((414, 255), 'Get this shtuff done less ASAP', font = font24, fill = 0)
         draw.text((414, 20), 'Get this shtuff done ASAP', font = font24, fill = 0)
         draw.text((320,220), ipAddr , font = font10, fill = 0)
@@ -198,15 +209,10 @@ try:
         draw.text((414,440), note3_tasks[6], font = font18, fill = 0)
         
     elif notes_count == 2:
-        events = ["" for _ in range(16)]
-        for i in range(len(events)):
-            events[i] = f"event {i}"
-
-        note1_tasks = ["" for _ in range(16)]
-        for i in range(len(note1_tasks)):
-            note1_tasks[i] = f"note 1 task {i}"
+        events = [""] * 16
+        note1_tasks = [""] * 16
             
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((414, 20), 'Get this shtuff done ASAP', font = font24, fill = 0)
         draw.text((320,450), ipAddr , font = font10, fill = 0)
 
