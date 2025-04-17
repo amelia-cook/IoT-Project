@@ -13,8 +13,30 @@ import time
 from PIL import Image,ImageDraw,ImageFont
 import traceback
 from subprocess import check_output
+from datetime import date
 
 logging.basicConfig(level=logging.DEBUG)
+
+def parse(text, size):
+    #parsing through the text, after 35 characters or a new line character it puts the rest of the string in the next element of the array     
+    max_length=45
+    result = []
+    current = ""
+
+    for char in text:
+        current += char
+        if len(current) >= max_length or char == '\n':
+            result.append(current.strip())
+            current = ""
+
+    if current:
+        result.append(current.strip())
+
+    while len(result) < size:
+        result.append(" ")
+            
+    return result
+
 
 try:
     logging.info("epd7in5_V2 Demo")
@@ -32,6 +54,10 @@ try:
     ipAddr = ipAddr.split('\'')[1].split(' ')[0]
     logging.info("ipaddr: " + ipAddr)
 
+    #todays date
+    today = date.today()
+    date_formatted = today.strftime("%A, %B %d")
+    
     # Drawing on the Horizontal image
     logging.info("Drawing on the Horizontal image...")
     epd.init_fast()
@@ -39,31 +65,40 @@ try:
     draw = ImageDraw.Draw(Himage)
     notes_count = 4
 
+    #notes can be 35 characters for 2 panels 
+    #1 panel (calendar) can be 70 characters across 
+    
     if notes_count == 1:
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        events = [""] * 16
+        
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((709,450), ipAddr , font = font10, fill = 0)
         draw.rectangle((10, 10, 789,469), outline = 0)
         draw.line((20,50, 779,50), fill = 0)
 
-        draw.text((20,55), 'event1', font = font18, fill = 0)
-        draw.text((20,80), 'event2', font = font18, fill = 0)
-        draw.text((20,105), 'event3', font = font18, fill = 0)
-        draw.text((20,130), 'event4', font = font18, fill = 0)
-        draw.text((20,155), 'event5', font = font18, fill = 0)
-        draw.text((20,180), 'event6', font = font18, fill = 0)
-        draw.text((20,205), 'event7', font = font18, fill = 0)
-        draw.text((20,230), 'event8', font = font18, fill = 0)
-        draw.text((20,255), 'event9', font = font18, fill = 0)
-        draw.text((20,280), 'event10', font = font18, fill = 0)
-        draw.text((20,305), 'event11', font = font18, fill = 0)
-        draw.text((20,330), 'event12', font = font18, fill = 0)
-        draw.text((20,355), 'event13', font = font18, fill = 0)
-        draw.text((20,380), 'event14', font = font18, fill = 0)
-        draw.text((20,405), 'event15', font = font18, fill = 0)
-        draw.text((20,430), 'event16', font = font18, fill = 0)
+        draw.text((20,55), events[0], font = font18, fill = 0)
+        draw.text((20,80), events[1], font = font18, fill = 0)
+        draw.text((20,105), events[2], font = font18, fill = 0)
+        draw.text((20,130), events[3], font = font18, fill = 0)
+        draw.text((20,155), events[4], font = font18, fill = 0)
+        draw.text((20,180), events[5], font = font18, fill = 0)
+        draw.text((20,205), events[6], font = font18, fill = 0)
+        draw.text((20,230), events[7], font = font18, fill = 0)
+        draw.text((20,255), events[8], font = font18, fill = 0)
+        draw.text((20,280), events[9], font = font18, fill = 0)
+        draw.text((20,305), events[10], font = font18, fill = 0)
+        draw.text((20,330), events[11], font = font18, fill = 0)
+        draw.text((20,355), events[12], font = font18, fill = 0)
+        draw.text((20,380), events[13], font = font18, fill = 0)
+        draw.text((20,405), events[14], font = font18, fill = 0)
+        draw.text((20,430), events[15], font = font18, fill = 0)
         
     elif notes_count == 3:
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        events = [""] *	16
+        note1_tasks = [""] * 7
+        note2_tasks = [""] * 7
+                        
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((414, 255), 'Get this shtuff done less ASAP', font = font24, fill = 0)
         draw.text((414, 20), 'Get this shtuff done ASAP', font = font24, fill = 0)
         draw.text((320,450), ipAddr , font = font10, fill = 0)
@@ -76,42 +111,53 @@ try:
         draw.line((414, 50, 780, 50), fill = 0)
         draw.line((414, 285, 780,285), fill = 0)
 
-        draw.text((20,55), 'event1', font = font18, fill = 0)
-        draw.text((20,80), 'event2', font = font18, fill = 0)
-        draw.text((20,105), 'event3', font = font18, fill = 0)
-        draw.text((20,130), 'event4', font = font18, fill = 0)
-        draw.text((20,155), 'event5', font = font18, fill = 0)
-        draw.text((20,180), 'event6', font = font18, fill = 0)
-        draw.text((20,205), 'event7', font = font18, fill = 0)
-        draw.text((20,230), 'event8', font = font18, fill = 0)
-        draw.text((20,255), 'event9', font = font18, fill = 0)
-        draw.text((20,280), 'event10', font = font18, fill = 0)
-        draw.text((20,305), 'event11', font = font18, fill = 0)
-        draw.text((20,330), 'event12', font = font18, fill = 0)
-        draw.text((20,355), 'event13', font = font18, fill = 0)
-        draw.text((20,380), 'event14', font = font18, fill = 0)
-        draw.text((20,405), 'event15', font = font18, fill = 0)
-        draw.text((20,430), 'event16', font = font18, fill = 0)
-    
-        draw.text((414,55), 'task1', font = font18, fill = 0)
-        draw.text((414,80), 'task2', font = font18, fill = 0)
-        draw.text((414,105), 'task3', font = font18, fill = 0)
-        draw.text((414,130), 'task4', font = font18, fill = 0)
-        draw.text((414,155), 'task5', font = font18, fill = 0)
-        draw.text((414,180), 'task6', font = font18, fill = 0)
-        draw.text((414,205), 'task7', font = font18, fill = 0)
+        #calendar events - left panel
+        draw.text((20,55), events[0], font = font18, fill = 0)
+        draw.text((20,80), events[1], font = font18, fill = 0)
+        draw.text((20,105), events[2], font = font18, fill = 0)
+        draw.text((20,130), events[3], font = font18, fill = 0)
+        draw.text((20,155), events[4], font = font18, fill = 0)
+        draw.text((20,180), events[5], font = font18, fill = 0)
+        draw.text((20,205), events[6], font = font18, fill = 0)
+        draw.text((20,230), events[7], font = font18, fill = 0)
+        draw.text((20,255), events[8], font = font18, fill = 0)
+        draw.text((20,280), events[9], font = font18, fill = 0)
+        draw.text((20,305), events[10], font = font18, fill = 0)
+        draw.text((20,330), events[11], font = font18, fill = 0)
+        draw.text((20,355), events[12], font = font18, fill = 0)
+        draw.text((20,380), events[13], font = font18, fill = 0)
+        draw.text((20,405), events[14], font = font18, fill = 0)
+        draw.text((20,430), events[15], font = font18, fill = 0)
+        
+        #note 1 - top right 
+        draw.text((414,55), note1_tasks[0], font = font18, fill = 0)
+        draw.text((414,80), note1_tasks[1], font = font18, fill = 0)
+        draw.text((414,105), note1_tasks[2], font = font18, fill = 0)
+        draw.text((414,130), note1_tasks[3], font = font18, fill = 0)
+        draw.text((414,155), note1_tasks[4], font = font18, fill = 0)
+        draw.text((414,180), note1_tasks[5], font = font18, fill = 0)
+        draw.text((414,205), note1_tasks[6], font = font18, fill = 0)
 
-        draw.text((414,290), 'task1', font = font18, fill = 0)
-        draw.text((414,315), 'task2', font = font18, fill = 0)
-        draw.text((414,340), 'task3', font = font18, fill = 0)
-        draw.text((414,365), 'task4', font = font18, fill = 0)
-        draw.text((414,390), 'task5', font = font18, fill = 0)
-        draw.text((414,415), 'task6', font = font18, fill = 0)
-        draw.text((414,440), 'task7', font = font18, fill = 0)
+        #note 2 - bottom right 
+        draw.text((414,290), note2_tasks[0], font = font18, fill = 0)
+        draw.text((414,315), note2_tasks[1], font = font18, fill = 0)
+        draw.text((414,340), note2_tasks[2], font = font18, fill = 0)
+        draw.text((414,365), note2_tasks[3], font = font18, fill = 0)
+        draw.text((414,390), note2_tasks[4], font = font18, fill = 0)
+        draw.text((414,415), note2_tasks[5], font = font18, fill = 0)
+        draw.text((414,440), note2_tasks[6], font = font18, fill = 0)
 
     elif notes_count == 4:
+        events = [""] * 7
+        note1_tasks = [""] * 7
+        note2_tasks = [""] * 7
+        note3_tasks = [""] * 7
+        
+        text = "- mail letters\n - start final\n - finish project \n - cook dinner \n"
+        note3_tasks = parse(text, 7)
+        
         draw.text((20, 255), 'Random Note', font = font24, fill = 0)
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((414, 255), 'Get this shtuff done less ASAP', font = font24, fill = 0)
         draw.text((414, 20), 'Get this shtuff done ASAP', font = font24, fill = 0)
         draw.text((320,220), ipAddr , font = font10, fill = 0)
@@ -126,41 +172,47 @@ try:
         draw.line((414, 50, 780, 50), fill = 0)
         draw.line((414, 285, 780,285), fill = 0)
 
-        draw.text((20,55), 'event1', font = font18, fill = 0)
-        draw.text((20,80), 'event2', font = font18, fill = 0)
-        draw.text((20,105), 'event3', font = font18, fill = 0)
-        draw.text((20,130), 'event4', font = font18, fill = 0)
-        draw.text((20,155), 'event5', font = font18, fill = 0)
-        draw.text((20,180), 'event6', font = font18, fill = 0)
-        draw.text((20,205), 'event7', font = font18, fill = 0)
+        #calendar events - top left
+        draw.text((20,55), events[0], font = font18, fill = 0)
+        draw.text((20,80), events[1], font = font18, fill = 0)
+        draw.text((20,105), events[2], font = font18, fill = 0)
+        draw.text((20,130), events[3], font = font18, fill = 0)
+        draw.text((20,155), events[4], font = font18, fill = 0)
+        draw.text((20,180), events[5], font = font18, fill = 0)
+        draw.text((20,205), events[6], font = font18, fill = 0)
 
-        draw.text((20,290), 'task1', font = font18, fill = 0)
-        draw.text((20,315), 'task2', font = font18, fill = 0)
-        draw.text((20,340), 'task3', font = font18, fill = 0)
-        draw.text((20,365), 'task4', font = font18, fill = 0)
-        draw.text((20,390), 'task5', font = font18, fill = 0)
-        draw.text((20,415), 'task6', font = font18, fill = 0)
-        draw.text((20,440), 'task7', font = font18, fill = 0)
+        #note 1 - bottom left 
+        draw.text((20,290), note1_tasks[0], font = font18, fill = 0)
+        draw.text((20,315), note1_tasks[1], font = font18, fill = 0)
+        draw.text((20,340), note1_tasks[2], font = font18, fill = 0)
+        draw.text((20,365), note1_tasks[3], font = font18, fill = 0)
+        draw.text((20,390), note1_tasks[4], font = font18, fill = 0)
+        draw.text((20,415), note1_tasks[5], font = font18, fill = 0)
+        draw.text((20,440), note1_tasks[6], font = font18, fill = 0)
+
+        #note 2 - top right 
+        draw.text((414,55), note2_tasks[0], font = font18, fill = 0)
+        draw.text((414,80), note2_tasks[1], font = font18, fill = 0)
+        draw.text((414,105), note2_tasks[2], font = font18, fill = 0)
+        draw.text((414,130), note2_tasks[3], font = font18, fill = 0)
+        draw.text((414,155), note2_tasks[4], font = font18, fill = 0)
+        draw.text((414,180), note2_tasks[5], font = font18, fill = 0)
+        draw.text((414,205), note2_tasks[6], font = font18, fill = 0)
+
+        #note 3 - bottom right
+        draw.text((414,290), note3_tasks[0], font = font18, fill = 0)
+        draw.text((414,315), note3_tasks[1], font = font18, fill = 0)
+        draw.text((414,340), note3_tasks[2], font = font18, fill = 0)
+        draw.text((414,365), note3_tasks[3], font = font18, fill = 0)
+        draw.text((414,390), note3_tasks[4], font = font18, fill = 0)
+        draw.text((414,415), note3_tasks[5], font = font18, fill = 0)
+        draw.text((414,440), note3_tasks[6], font = font18, fill = 0)
         
-        draw.text((414,55), 'task1', font = font18, fill = 0)
-        draw.text((414,80), 'task2', font = font18, fill = 0)
-        draw.text((414,105), 'task3', font = font18, fill = 0)
-        draw.text((414,130), 'task4', font = font18, fill = 0)
-        draw.text((414,155), 'task5', font = font18, fill = 0)
-        draw.text((414,180), 'task6', font = font18, fill = 0)
-        draw.text((414,205), 'task7', font = font18, fill = 0)
-
-        draw.text((414,290), 'task1', font = font18, fill = 0)
-        draw.text((414,315), 'task2', font = font18, fill = 0)
-        draw.text((414,340), 'task3', font = font18, fill = 0)
-        draw.text((414,365), 'task4', font = font18, fill = 0)
-        draw.text((414,390), 'task5', font = font18, fill = 0)
-        draw.text((414,415), 'task6', font = font18, fill = 0)
-        draw.text((414,440), 'task7', font = font18, fill = 0)
-
-
     elif notes_count == 2:
-        draw.text((20, 20), 'DAILY CALENDAR', font = font24, fill = 0)
+        events = [""] * 16
+        note1_tasks = [""] * 16
+            
+        draw.text((20, 20), date_formatted, font = font24, fill = 0)
         draw.text((414, 20), 'Get this shtuff done ASAP', font = font24, fill = 0)
         draw.text((320,450), ipAddr , font = font10, fill = 0)
 
@@ -170,39 +222,41 @@ try:
         draw.line((20,50, 384, 50 ), fill = 0) 
         draw.line((414, 50, 780, 50), fill = 0)
 
-        draw.text((20,55), 'event1', font = font18, fill = 0)
-        draw.text((20,80), 'event2', font = font18, fill = 0)
-        draw.text((20,105), 'event3', font = font18, fill = 0)
-        draw.text((20,130), 'event4', font = font18, fill = 0)
-        draw.text((20,155), 'event5', font = font18, fill = 0)
-        draw.text((20,180), 'event6', font = font18, fill = 0)
-        draw.text((20,205), 'event7', font = font18, fill = 0)
-        draw.text((20,230), 'event8', font = font18, fill = 0)
-        draw.text((20,255), 'event9', font = font18, fill = 0)
-        draw.text((20,280), 'event10', font = font18, fill = 0)
-        draw.text((20,305), 'event11', font = font18, fill = 0)
-        draw.text((20,330), 'event12', font = font18, fill = 0)
-        draw.text((20,355), 'event13', font = font18, fill = 0)
-        draw.text((20,380), 'event13', font = font18, fill = 0)
-        draw.text((20,405), 'event14', font = font18, fill = 0)
-        draw.text((20,430), 'event15', font = font18, fill = 0)
-    
-        draw.text((414,55), 'task1', font = font18, fill = 0)
-        draw.text((414,80), 'task2', font = font18, fill = 0)
-        draw.text((414,105), 'task3', font = font18, fill = 0)
-        draw.text((414,130), 'task4', font = font18, fill = 0)
-        draw.text((414,155), 'task5', font = font18, fill = 0)
-        draw.text((414,180), 'task6', font = font18, fill = 0)
-        draw.text((414,205), 'task7', font = font18, fill = 0)
-        draw.text((414,230), 'task8', font = font18, fill = 0)
-        draw.text((414,255), 'task9', font = font18, fill = 0)
-        draw.text((414,280), 'task10', font = font18, fill = 0)
-        draw.text((414,305), 'task11', font = font18, fill = 0)
-        draw.text((414,330), 'task12', font = font18, fill = 0)
-        draw.text((414,355), 'task13', font = font18, fill = 0)
-        draw.text((414,380), 'task14', font = font18, fill = 0)
-        draw.text((414,405), 'task15', font = font18, fill = 0)
-        draw.text((414,430), 'task16', font = font18, fill = 0)
+        #calendar events - left panel
+        draw.text((20,55), events[0], font = font18, fill = 0)
+        draw.text((20,80), events[1], font = font18, fill = 0)
+        draw.text((20,105), events[2], font = font18, fill = 0)
+        draw.text((20,130), events[3], font = font18, fill = 0)
+        draw.text((20,155), events[4], font = font18, fill = 0)
+        draw.text((20,180), events[5], font = font18, fill = 0)
+        draw.text((20,205), events[6], font = font18, fill = 0)
+        draw.text((20,230), events[7], font = font18, fill = 0)
+        draw.text((20,255), events[8], font = font18, fill = 0)
+        draw.text((20,280), events[9], font = font18, fill = 0)
+        draw.text((20,305), events[10], font = font18, fill = 0)
+        draw.text((20,330), events[11], font = font18, fill = 0)
+        draw.text((20,355), events[12], font = font18, fill = 0)
+        draw.text((20,380), events[13], font = font18, fill = 0)
+        draw.text((20,405), events[14], font = font18, fill = 0)
+        draw.text((20,430), events[15], font = font18, fill = 0)
+
+        #sticky note tasks - right panel 
+        draw.text((414,55), note1_tasks[0], font = font18, fill = 0)
+        draw.text((414,80), note1_tasks[1], font = font18, fill = 0)
+        draw.text((414,105), note1_tasks[2], font = font18, fill = 0)
+        draw.text((414,130), note1_tasks[3], font = font18, fill = 0)
+        draw.text((414,155), note1_tasks[4], font = font18, fill = 0)
+        draw.text((414,180), note1_tasks[5], font = font18, fill = 0)
+        draw.text((414,205), note1_tasks[6], font = font18, fill = 0)
+        draw.text((414,230), note1_tasks[7], font = font18, fill = 0)
+        draw.text((414,255), note1_tasks[8], font = font18, fill = 0)
+        draw.text((414,280), note1_tasks[9], font = font18, fill = 0)
+        draw.text((414,305), note1_tasks[10], font = font18, fill = 0)
+        draw.text((414,330), note1_tasks[11], font = font18, fill = 0)
+        draw.text((414,355), note1_tasks[12], font = font18, fill = 0)
+        draw.text((414,380), note1_tasks[13], font = font18, fill = 0)
+        draw.text((414,405), note1_tasks[14], font = font18, fill = 0)
+        draw.text((414,430), note1_tasks[15], font = font18, fill = 0)
         
     epd.display(epd.getbuffer(Himage))
     time.sleep(2)
