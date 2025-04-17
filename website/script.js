@@ -16,36 +16,53 @@ function ipSubmit() {
 
 function calSubmit() {
     cal = document.getElementById("calID").value;
-    // ipaddr = sessionStorage.getItem("ipaddr");
-    // link = "http://" + ipaddr + ":5000/calID";
-    // alert(link);
-    // apiPOST(link, '{"username":"xyz","password":"xyz"}');
-    apiGET("http://172.30.134.169:5000/getSticky")
-    // TODO: send POST request to Pi with new calendar ID
-    // link: /addCalendar
-    // data: cal
+    ipaddr = sessionStorage.getItem("ipaddr");
+    if (!ipaddr) {
+        alert("Please enter IP Address");
+        return;
+    }
+    link = "http://" + ipaddr + ":5000/calID";
+    // alert(link + " " + cal);
+    apiPOST(link, cal);
 }
 
 function newSubmit() {
     stickyName = document.getElementById("name").value;
     stickyContent = document.getElementById("newContent").value;
-    // TODO: send POST request to Pi with new sticky
-    // link: /newSticky
-    // data: name, content
+    ipaddr = sessionStorage.getItem("ipaddr");
+    if (!ipaddr) {
+        alert("Please enter IP Address");
+        return;
+    }
+    link = "http://" + ipaddr + ":5000/createSticky";
+    
+    data = new Object();
+    data.name = stickyName;
+    data.content = stickyContent;
+    
+    // alert(link + " " + JSON.stringify(data));
+    
+    apiPOST(link, JSON.stringify(data));
 }
 
 function nameSubmit() {
     stickyName = document.getElementById("name").value;
     
-    // TODO: send GET request to Pi for sticky content
-    // link: /getSticky?name=stickyName
+    alert(stickyName);
     
-    updateWithSticky();
-}
-
-function updateWithSticky() {
-    // TODO: fill with contents of sticknote
-    // document.getElementById("newContent").value = 
+    ipaddr = sessionStorage.getItem("ipaddr");
+    if (!ipaddr) {
+        alert("Please enter IP Address");
+        return;
+    }
+    
+    link = "http://" + ipaddr + ":5000/getSticky?name=" + stickyName;
+    apiGET(link);
+    
+    if (response != "") {
+        document.getElementById("newContent").value = response;
+        response = "";
+    }
 }
 
 function apiGET(link) {
