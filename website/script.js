@@ -23,7 +23,11 @@ function calSubmit() {
     }
     link = "http://" + ipaddr + ":5000/calID";
     // alert(link + " " + cal);
-    apiPOST(link, cal);
+    
+    data = new Object();
+    data.calID = cal;
+    
+    apiPOST(link, data);
 }
 
 function newSubmit() {
