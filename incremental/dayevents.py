@@ -38,7 +38,14 @@ if response.status_code == 200:
     events = response.json().get('items', [])
     if events:
         for event in events:
-            print(f"Event: {event['summary']} at {event['start']['dateTime']}")
+            starttime = datetime.fromisoformat(event['start']['dateTime'])
+            hour = starttime.strftime("%I")
+            minute = starttime.strftime("%M")
+            ampm = starttime.strftime("%p")
+            name = event['summary']
+            
+            printstring = hour + ":" + minute + " " + ampm + " " + name
+            print(printstring)
     else:
         print("No events found.")
 else:
