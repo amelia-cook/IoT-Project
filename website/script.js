@@ -1,5 +1,5 @@
 APIKEY = "AIzaSyCPYurU7oRoK0nYeFll2Y5sS3oGY2VLgWM"
-response = ""
+// response = ""
 
 function onLoad() {
     ipaddr = sessionStorage.getItem("ipaddr");
@@ -11,7 +11,6 @@ function onLoad() {
 function ipSubmit() {
     addr = document.getElementById("ipaddr");
     sessionStorage.setItem("ipaddr", addr.value);
-    // alert(addr.value + "\n" + sessionStorage.getItem("ipaddr"));
 }
 
 function calSubmit() {
@@ -22,12 +21,11 @@ function calSubmit() {
         return;
     }
     link = "http://" + ipaddr + ":5000/calID";
-    // alert(link + " " + cal);
     
     data = new Object();
     data.calID = cal;
     
-    apiPOST(link, data);
+    apiPOST(link, JSON.stringify(data));
 }
 
 function newSubmit() {
@@ -44,15 +42,11 @@ function newSubmit() {
     data.name = stickyName;
     data.content = stickyContent;
     
-    // alert(link + " " + JSON.stringify(data));
-    
     apiPOST(link, JSON.stringify(data));
 }
 
 function nameSubmit() {
     stickyName = document.getElementById("name").value;
-    
-    alert(stickyName);
     
     ipaddr = sessionStorage.getItem("ipaddr");
     if (!ipaddr) {
@@ -62,27 +56,25 @@ function nameSubmit() {
     
     link = "http://" + ipaddr + ":5000/getSticky?name=" + stickyName;
     apiGET(link);
-    
-    if (response != "") {
-        document.getElementById("newContent").value = response;
-        response = "";
-    }
 }
 
-function apiGET(link) {
+function updateTextBox(text) {
+    document.getElementById("newContent").value = text;
+}
+
+function apiGET(link) { 
     xhr = new XMLHttpRequest();
     if (!xhr) {
         alert("Unable to create HTTPRequest object");
         return;
     }
-    xhr.open("GET", link, true);
-    xhr.onload = function () {
-        if (this.status === 200) {
+    xhr.open("GET", link, false);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
             // Changing string data into JSON Object
             obj = JSON.parse(this.responseText);
             
-            alert(this.responseText);
-            response = this.ResponseText;
+            updateTextBox(obj.content);
         }
         else {
             console.log("File not found");
@@ -104,7 +96,6 @@ function apiPOST(link, data) {
             // Changing string data into JSON Object
             obj = JSON.parse(this.responseText);
             
-            alert(this.responseText);
             response = this.ResponseText;
         }
         else {
