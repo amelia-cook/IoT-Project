@@ -1,4 +1,3 @@
-
 import sys
 import os
 import json
@@ -21,11 +20,12 @@ if os.path.exists(libdir):
     sys.path.append(libdir)
 
 app = Flask(__name__)
-num_stickies = 1
 sticky_name = []
 sticky_content = []
 events = []
 cal_id = ""
+
+display_on = true
 
 font24 = ImageFont.truetype(os.path.join(libdir, 'Font.ttc'), 24)
 font18 = ImageFont.truetype(os.path.join(libdir, 'Font.ttc'), 18)
@@ -36,9 +36,13 @@ ipAddr = ipAddr.split('\'')[1].split(' ')[0]
 
 API_KEY = 'AIzaSyCPYurU7oRoK0nYeFll2Y5sS3oGY2VLgWM'
 
-
+# parse()
+# parameters: text (string we are parsing), size (size of the array we want, for display), 
+#               max_length (number of characters per line)
+# description: parsing through the text, after max_length characters or a new line character it puts the rest of 
+#               the string in the next element of the array
+# returns: array of all of the split up input string
 def parse(text, size, max_length):
-  #parsing through the text, after max_length characters or a new line character it puts the rest of the string in the next element of the array     
   result = []
 
   # Split on explicit newlines first
@@ -58,11 +62,21 @@ def parse(text, size, max_length):
     if current:
       result.append(current)
 
+  # if there are not enough elements in the events array than the size of the events needed to be displayes
+  # add empty strings to the end 
   while len(result) < size:
     result.append(" ")
           
   return result
 
+# to be displayed when the user has not put in their calendar ID 
+# displayed on start
+
+
+# start_calendar()
+# parameters: none
+# description: to be displayed when the user has not put in their calendar ID, 
+# returns: none
 def start_calendar():
   global events 
   events = []
@@ -71,6 +85,7 @@ def start_calendar():
   while len(events) < 16:
     events.append(" ")
   print_display()
+
 
 def getCalEvent():
   global events 
@@ -179,7 +194,6 @@ def print_display():
   global sticky_content
   global sticky_name
   global events
-  global epd
   global Himage
   global draw
 
@@ -307,15 +321,19 @@ def remove_sticky_display(name):
     del sticky_name[index]
     del sticky_content[index]
 
+# 
+#  parameters:
+# description: 
+#     returns: 
 def get_sticky_contents(name):
   if name in sticky_name:
     index = sticky_name.index(name)
     return sticky_content[index]
 
-def periodic_update():
-  time.sleep(60 * 60) # sleep for 60 minutes
-  print_display()
-
+# 
+#  parameters:
+# description: 
+#     returns: 
 @app.route('/calID', methods=['POST'])
 @cross_origin()
 def receive_calID():
@@ -325,20 +343,27 @@ def receive_calID():
     print_display()
     return jsonify({"status": "success", "received": data}), 200
 
+# create_Sticky()
+# description: this function serves as the API endpoint for the POST request
+#              targeting /createSticky. Receiving the name and contents of a
+#               stickynote, the display will either update with a new note if
+#              space allows or will update the contents of an existing note
+#     returns: successful status code and the retrieved content
 @app.route('/createSticky', methods=['POST'])
 @cross_origin()
-def receive_createSticky():
-    global num_stickies
-    num_stickies += 1
+def create_Sticky():
     data = request.json
-
     name = data['name']
     contents = data['content']
     create_sticky(name, contents)
     print_display()
-    
     return jsonify({"status": "success", "received": data}), 200
 
+# get_sticky()
+# description: this function serves as the API endpoint for the GET request
+#              targeting /getSticky. It retrieves the contents of the sticknote
+#              of the given name, if it exists
+#     returns: successful status code and the retrieved content
 @app.route('/getSticky', methods=['GET'])
 @cross_origin()
 def get_sticky():
@@ -346,6 +371,11 @@ def get_sticky():
     content = get_sticky_contents(name)
     return jsonify({"status": "success", "content": content}), 200
 
+# remove_sticky()
+# description: this function serves as the API endpoint for the GET request
+#              targeting /removeSticky. It removes the stickynote of the given
+#              name, if it exists, and updates the display
+#     returns: successful status code and the removed name
 @app.route('/removeSticky', methods=['GET'])
 @cross_origin()
 def remove_sticky():
@@ -354,16 +384,71 @@ def remove_sticky():
     print_display()
     return jsonify({"status": "success", "name": name}), 200
 
+# display_off()
+# description: this function serves as the API endpoint for the GET request
+#              targeting /clear. It clears the stickynote display to turn 
+#              the display off
+#     returns: successful status code and the cleared
+@app.route('/clear', methods=['GET'])
+@cross_origin()
+def display_off():
+  global display_on
+  display_on = False
 
+  epd = epd7in5_V2.EPD()
+  epd.init()
+  epd.Clear()
+  epd.sleep()
+  return jsonify({"status": "success", "turn display off"}), 200
+
+# display_on()
+# description: this function serves as the API endpoint for the GET request
+#              targeting /show. It turns the sticky note back on to display the 
+#              calendar and sticky notes 
+#     returns: successful status code and the cleared
+@app.route('/show', methods=['GET'])
+@cross_origin()
+def display_on():
+  global display_on
+  display_on = True
+  print_display()
+  return jsonify({"status": "success", "turn display on"}), 200
+
+
+# periodic_update()
+# description: this is the worker function for the timing thread created upon
+#              startup. It periodically refreshes the display to update the
+#              calendar to reflect changes over time
+def periodic_update():
+  time.sleep(60 * 60) # sleep for 60 minutes
+  if display_on:
+    print_display()
+
+# TODO
 if __name__ == '__main__':
-  thread = threading.Thread(target=periodic_update)
-  try:
-    thread.start()
-    start_calendar()
-    app.run(host="0.0.0.0", port=5000)
-    thread.join()
-  except Exception as e:
-    print(f"Exception: {e}")
-  finally:
-    epd7in5_V2.epdconfig.module_exit(cleanup=True)
-    thread.join()
+    thread = threading.Thread(target=periodic_update)
+    try:
+      thread.start()
+      start_calendar()
+      app.run(host="0.0.0.0", port=5000)
+      thread.join()
+    except Exception as e:
+      print(f"Exception: {e}")
+    finally:
+      epd7in5_V2.epdconfig.module_exit(cleanup=True)
+      thread.join()
+
+
+# To Do: 
+# test clearing and displaying
+# clear --> clear display
+# on --> turn display back on and keep previous stuff
+# off --> clear display to turn off
+
+"""
+TODO
+- main documentation
+- clear disp
+  - stop thread
+- show disp
+"""
