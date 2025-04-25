@@ -58,6 +58,18 @@ function nameSubmit() {
     apiGET(link);
 }
 
+function removeSubmit() {
+    stickyName = document.getElementById("name").value;
+    ipaddr = sessionStorage.getItem("ipaddr");
+    if (!ipaddr) {
+        alert("Please enter IP Address");
+        return;
+    }
+    
+    link = "http://" + ipaddr + ":5000/removeSticky?name=" + stickyName;
+    apiGET(link);
+}
+
 function updateTextBox(text) {
     document.getElementById("newContent").value = text;
 }
@@ -104,10 +116,3 @@ function apiPOST(link, data) {
     }
     xhr.send(data);
 }
-
-// curl -i -X GET -H "X-goog-api-key: APIKEY" https://www.googleapis.com/calendar/v3/calendars/stickynoteiot@gmail.com/events
-
-// sessionStorage.setItem(KEY, VALUE)
-// sessionStorage.getItem(KEY)
-// sessionStorage.removeItem(KEY)
-// sessionStorage.clear()

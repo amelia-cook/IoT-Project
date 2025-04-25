@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <title> Sticky Note! </title>
+        <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    </head>
+    <body onload="onLoad()">
+        <script src="script.js"></script>
+        <form>
+            <input type="text" id="ipaddr" value="IP Addr">
+            <input type="button" id="submit" onClick="ipSubmit()" value="Submit!">
+            <br><br>
+            <input type="text" id="name" value="Sticky Name">
+            <br>
+            <input type="button" id="submit" onClick="removeSubmit()" value="Remove Sticky">
+        </form>
+        <br><br>
+        <button onclick="window.location.href='index.html';">
+            Back to Menu
+        </button>
+    </body>
+</html>
