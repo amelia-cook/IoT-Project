@@ -1,10 +1,15 @@
-APIKEY = "AIzaSyCPYurU7oRoK0nYeFll2Y5sS3oGY2VLgWM"
-// response = ""
-
 function onLoad() {
     ipaddr = sessionStorage.getItem("ipaddr");
     if (ipaddr != null) {
         document.getElementById("ipaddr").value = ipaddr;
+    }
+    
+    if (document.getElementById("clear") == "cleared") { 
+        if (sessionStorage.getItem("clear?") == "showed") {
+            document.getElementById("clear").value = "Show Display";
+        } else {
+            document.getElementById("clear").value = "Clear Display";
+        }
     }
 }
 
@@ -67,6 +72,28 @@ function removeSubmit() {
     }
     
     link = "http://" + ipaddr + ":5000/removeSticky?name=" + stickyName;
+    apiGET(link);
+}
+
+function display() {
+    ipaddr = sessionStorage.getItem("ipaddr");
+    if (!ipaddr) {
+        alert("Please enter IP Address");
+        return;
+    }
+    
+    if (sessionStorage.getItem("clear?") == "showed") {
+        sessionStorage.setItem("clear?", "cleared");
+        document.getElementById("clear").value = "Show Display";
+        
+        link = "http://" + ipaddr + ":5000/show";
+    } else {
+        sessionStorage.setItem("clear?", "showed");
+        document.getElementById("clear").value = "Clear Display";
+        
+        link = "http://" + ipaddr + ":5000/clear";
+    }
+    
     apiGET(link);
 }
 
