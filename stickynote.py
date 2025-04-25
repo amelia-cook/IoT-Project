@@ -109,16 +109,23 @@ def parse(text, size):
   #parsing through the text, after 35 characters or a new line character it puts the rest of the string in the next element of the array     
   max_length=45
   result = []
-  current = ""
 
-  for char in text:
-    current += char
-    if len(current) >= max_length or char == '\n':
-      result.append(current.strip())
-      current = ""
+  # Split on explicit newlines first
+  lines = text.split('\n')
+  
+  for line in lines:
+    words = line.split()
+    current = ""
 
-  if current:
-    result.append(current.strip())
+    for word in words:
+      if len(current) + len(word) + (1 if current else 0) > max_length:
+        result.append(current)
+        current = word
+      else:
+        current += (" " if current else "") + word
+
+    if current:
+      result.append(current)
 
   while len(result) < size:
     result.append(" ")
@@ -386,7 +393,7 @@ app.run(host="0.0.0.0", port=5000)
 
 '''
 To do:
--- fix parse so that it breaks on a space
+-- fix parse so that it breaks on a space --> DONE
 -- remove a sticky
 -- code refactoring 
 -- default cal print 
