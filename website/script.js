@@ -4,11 +4,11 @@ function onLoad() {
         document.getElementById("ipaddr").value = ipaddr;
     }
     
-    if (document.getElementById("clear") == "cleared") { 
-        if (sessionStorage.getItem("clear?") == "showed") {
-            document.getElementById("clear").value = "Show Display";
+    if (document.getElementById("hide")) { 
+        if (sessionStorage.getItem("hidden?") == "hidden") {
+            document.getElementById("hide").value = "Show Display";
         } else {
-            document.getElementById("clear").value = "Clear Display";
+            document.getElementById("hide").value = "Hide Display";
         }
     }
 }
@@ -82,18 +82,31 @@ function display() {
         return;
     }
     
-    if (sessionStorage.getItem("clear?") == "showed") {
-        sessionStorage.setItem("clear?", "cleared");
-        document.getElementById("clear").value = "Show Display";
+    link = ""
+    
+    if (sessionStorage.getItem("hidden?") == "hidden") {
+        sessionStorage.setItem("hidden?", "shown");
+        document.getElementById("hide").value = "Hide Display";
         
         link = "http://" + ipaddr + ":5000/show";
     } else {
-        sessionStorage.setItem("clear?", "showed");
-        document.getElementById("clear").value = "Clear Display";
+        sessionStorage.setItem("hidden?", "hidden");
+        document.getElementById("hide").value = "Show Display";
         
-        link = "http://" + ipaddr + ":5000/clear";
+        link = "http://" + ipaddr + ":5000/hide";
     }
     
+    apiGET(link);
+}
+
+function clear_stickies() {
+    ipaddr = sessionStorage.getItem("ipaddr");
+    if (!ipaddr) {
+        alert("Please enter IP Address");
+        return;
+    }
+    
+    link = "http://" + ipaddr + ":5000/clear";
     apiGET(link);
 }
 

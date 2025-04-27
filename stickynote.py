@@ -25,7 +25,7 @@ sticky_content = []
 events = []
 cal_id = ""
 
-display_on = true
+display_on = True
 
 font24 = ImageFont.truetype(os.path.join(libdir, 'Font.ttc'), 24)
 font18 = ImageFont.truetype(os.path.join(libdir, 'Font.ttc'), 18)
@@ -34,7 +34,9 @@ font10 = ImageFont.truetype(os.path.join(libdir, 'Font.ttc'), 10)
 ipAddr = str(check_output(['hostname', '-I']))
 ipAddr = ipAddr.split('\'')[1].split(' ')[0]
 
-API_KEY = 'AIzaSyCPYurU7oRoK0nYeFll2Y5sS3oGY2VLgWM'
+API_KEY_PATH = '../api-key'
+file = open(API_KEY_PATH, "r")
+API_KEY = file.read().replace('\n', '')
 
 # parse()
 # parameters: text (string we are parsing), size (size of the array we want, for display), 
@@ -148,7 +150,6 @@ def getCalEvent():
       events = parse(event_string, 20, event_length)
     else:
       events.append("No events today!")
-      print("No events found.")
 
   else:
     print(f"Failed to retrieve events: {response.status_code}")
@@ -309,7 +310,9 @@ def print_display():
     print(f"Exception: {e}")
       
   except KeyboardInterrupt:
+    global running
     epd7in5_V2.epdconfig.module_exit(cleanup=True)
+    running = False
     exit()
 
 def remove_sticky_display(name):
@@ -389,7 +392,7 @@ def remove_sticky():
 #              targeting /clear. It clears the stickynote display to turn 
 #              the display off
 #     returns: successful status code and the cleared
-@app.route('/clear', methods=['GET'])
+@app.route('/hide', methods=['GET'])
 @cross_origin()
 def display_off():
   global display_on
@@ -399,7 +402,7 @@ def display_off():
   epd.init()
   epd.Clear()
   epd.sleep()
-  return jsonify({"status": "success", "turn display off"}), 200
+  return jsonify({"status": "success", "action": "turn display off"}), 200
 
 # display_on()
 # description: this function serves as the API endpoint for the GET request
@@ -412,7 +415,22 @@ def display_on():
   global display_on
   display_on = True
   print_display()
-  return jsonify({"status": "success", "turn display on"}), 200
+  return jsonify({"status": "success", "action": "turn display on"}), 200
+
+@app.route('/clear', methods=['GET'])
+@cross_origin()
+def clear():
+  global sticky_name
+  global sticky_content
+  # clear all stickies
+  print("inside clear() method")
+  sticky_name = []
+  sticky_content = []
+
+  print(sticky_name)
+  print(sticky_content)
+  print_display()
+  return jsonify({"status": "success", "action": "clear display"}), 200
 
 
 # periodic_update()
@@ -420,35 +438,30 @@ def display_on():
 #              startup. It periodically refreshes the display to update the
 #              calendar to reflect changes over time
 def periodic_update():
-  time.sleep(60 * 60) # sleep for 60 minutes
-  if display_on:
-    print_display()
+  global running
+  while running:
+    try:
+      time.sleep(60 * 60) # sleep for 60 minutes
+      if display_on:
+        print_display()
+    except KeyboardInterrupt:
+      running = False
+      
 
 # TODO
 if __name__ == '__main__':
-    thread = threading.Thread(target=periodic_update)
-    try:
-      thread.start()
-      start_calendar()
-      app.run(host="0.0.0.0", port=5000)
-      thread.join()
-    except Exception as e:
-      print(f"Exception: {e}")
-    finally:
-      epd7in5_V2.epdconfig.module_exit(cleanup=True)
-      thread.join()
-
-
-# To Do: 
-# test clearing and displaying
-# clear --> clear display
-# on --> turn display back on and keep previous stuff
-# off --> clear display to turn off
-
-"""
-TODO
-- main documentation
-- clear disp
-  - stop thread
-- show disp
-"""
+  global running
+  thread = threading.Thread(target=periodic_update)
+  try:
+    running = True
+    thread.start()
+    start_calendar()
+    app.run(host="0.0.0.0", port=5000)
+    running = False
+    thread.join()
+  except Exception as e:
+    running = False
+    print(f"Exception: {e}")
+  finally:
+    epd7in5_V2.epdconfig.module_exit(cleanup=True)
+    thread.join()
