@@ -75,6 +75,7 @@ def parse(text, size, max_length):
           
   return result
 
+
 # start_calendar()
 # description: this function drives what is to be displayed when the user has
 #              not put in their calendar ID
@@ -87,6 +88,7 @@ def start_calendar():
   # fill the remaining space to avoid printing garbage data
     events.append(" ")
   print_display()
+
 
 # getCalEvent()
 # description: this function gets the calendar events from the Google API and
@@ -137,8 +139,8 @@ def getCalEvent():
         if 'date' in event['start']:
         # if the event is an all-day event
           name = event['summary']
-          printstring = "ALL DAY: " + name
-          events.append(printstring)
+          printstring = "ALL DAY: " + name + " \n "
+          event_string += printstring
         elif 'dateTime' in event['start']:
           starttime = datetime.fromisoformat(event['start']['dateTime'])
           hour = starttime.strftime("%I")
@@ -163,6 +165,7 @@ def getCalEvent():
   else:
     print(f"Failed to retrieve events: {response.status_code}")
 
+
 # display_cal(size)
 #  parameters: size         the number of lines that can be printed
 # description: this function prints the calendar using the global list of events
@@ -184,6 +187,7 @@ def display_cal(size):
     count = count + 1
   
   draw.text((20, 20), date_formatted, font = font24, fill = 0)
+
 
 # display_task(note_task, size, x_value, y_start)
 #  parameters: note_task    the content of the note to print
@@ -361,6 +365,7 @@ def print_display():
     running = False
     # exit()
 
+
 # remove_sticky_display(name)
 #  parameters: name         the name of the stickynote to remove
 # description: this function deletes a specific sticky note from the model, if
@@ -374,6 +379,7 @@ def remove_sticky_display(name):
     index = sticky_name.index(name)
     del sticky_name[index]
     del sticky_content[index]
+
 
 # get_sticky_contents(name)
 #  parameters: name         the name of the stickynote to get
@@ -389,6 +395,7 @@ def get_sticky_contents(name):
     index = sticky_name.index(name)
     return sticky_content[index]
 
+
 # receive_calID()
 # description: this function serves as the API endpoint for the POST request
 #              targeting /calID. Receiving a google calendar ID, the model is
@@ -403,6 +410,7 @@ def receive_calID():
     cal_id = data['calID']
     print_display()
     return jsonify({"status": "success", "received": data}), 200
+
 
 # create_Sticky()
 # description: this function serves as the API endpoint for the POST request
@@ -420,6 +428,7 @@ def create_Sticky():
     print_display()
     return jsonify({"status": "success", "received": data}), 200
 
+
 # get_sticky()
 # description: this function serves as the API endpoint for the GET request
 #              targeting /getSticky. It retrieves the contents of the sticknote
@@ -431,6 +440,7 @@ def get_sticky():
     name = request.args.get('name') 
     content = get_sticky_contents(name)
     return jsonify({"status": "success", "content": content}), 200
+
 
 # remove_sticky()
 # description: this function serves as the API endpoint for the GET request
@@ -444,6 +454,7 @@ def remove_sticky():
     remove_sticky_display(name)
     print_display()
     return jsonify({"status": "success", "name": name}), 200
+
 
 # display_off()
 # description: this function serves as the API endpoint for the GET request
@@ -460,6 +471,7 @@ def display_off():
   epd.sleep()
   return jsonify({"status": "success", "action": "turn display off"}), 200
 
+
 # display_on()
 # description: this function serves as the API endpoint for the GET request
 #              targeting /show. It turns the screen back on to display the 
@@ -472,6 +484,7 @@ def display_on():
   display_on = True
   print_display()
   return jsonify({"status": "success", "action": "turn display on"}), 200
+
 
 # clear()
 # description: this function serves as the API endpoint for the GET request
@@ -503,9 +516,8 @@ def periodic_update():
         print_display()
     except KeyboardInterrupt:
       running = False
-      
 
-# TODO
+
 if __name__ == '__main__':
   global running
   thread = threading.Thread(target=periodic_update)
