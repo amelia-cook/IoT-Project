@@ -17,7 +17,7 @@ the website.
 Connect the Pi to the hardware, then connect it to a power source. The project
 code will run automatically once the Pi is connected to the internet. After
 that, users can access the website to update the display. The website's current
-URL is []()
+URL is http://ameliacook.org/.
 
 To run this project manually, the command is `python3 stickynote.py`. If the
 website is not actively running, curl commands can be used to ping the API.
